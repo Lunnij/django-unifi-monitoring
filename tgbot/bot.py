@@ -22,16 +22,10 @@ def bot_instance():
     return bot
 
 
-@database_sync_to_async
-def create_user(tg_username, chat_id):
-    telegram_user, created = TelegramUser.objects.get_or_create(username=tg_username, chat_id=chat_id)
-    return created
-
-
 async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     await asyncio.sleep(1)
-    created = await create_user(user.username, user.id)
+    created = await database_sync_to_async(TelegramUser.objects.get_or_create)(username=user.username, chat_id=user.id)
     if created:
         await context.bot.send_message(
             chat_id=user.id,
