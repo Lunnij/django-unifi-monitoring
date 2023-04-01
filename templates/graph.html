@@ -1,0 +1,125 @@
+{% extends 'index.html' %}
+
+{% block meta %} 
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+  }
+  .chartMenu {
+    width: 100vw;
+    height: 40px;
+    background: #1A1A1A;
+    color: rgba(54, 162, 235, 1);
+  }
+  .chartMenu p {
+    padding: 10px;
+    font-size: 20px;
+  }
+  .chartCard {
+    width: 100vw;
+    height: calc(100vh - 350px);
+    
+    display: flex;
+    align-items: center;
+    
+  }
+  .chartBox {
+    width: 700px;
+    padding: 20px;
+    border-radius: 20px;
+    border: solid 3px rgba(54, 162, 235, 1);
+    background: white;
+  }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class='chartCard'>
+  <div class='chartBox'>
+    <canvas id="bar-chart"></canvas>
+    <input onchange='filterData()' type='datetime-local' id="startDateTime" name="startDateTime" >
+    <input onchange='filterData()' type='datetime-local' id="endDateTime" name="endDateTime">
+  </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
+<script>
+  const barChart = new Chart(document.getElementById("bar-chart"), {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: []
+    },
+    options: {
+      responsive: true,
+      legend: {
+        display: true,
+        position: 'bottom'
+      },
+      scales: {
+        xAxes: [{
+          stacked: false,
+          ticks: {
+            autoSkip: true,
+            maxTicksLimit: 20,
+            maxRotation: 0,
+            minRotation: 0
+          },
+          type: 'time',
+          time: {
+            unit: 'day',
+            displayFormats: {
+              day: 'MMM DD'
+            }
+          }
+        }],
+        yAxes: [{
+          stacked: false,
+          ticks: {
+            beginAtZero: true,
+            precision: 0
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Count'
+          }
+        }]
+      }
+    }
+  });  
+
+</script>
+<script>
+  function filterData() {
+    const startDateTime = document.getElementById('startDateTime').value;
+    const endDateTime = document.getElementById('endDateTime').value;
+    const url = `/graph/bar-json/?start=${startDateTime}&end=${endDateTime}`
+
+
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      barChart.data.labels = data.labels;
+      barChart.data.datasets = data.datasets;
+
+      barChart.update();
+    }).catch(error => console.error(error));
+  }
+</script>
+<script> 
+  const lastHour = new Date(Date.now() - 3600000);
+  const lastHourISOstring = lastHour.toISOString().slice(0,16);
+  
+  const now = new Date();
+  const nowISOstring = now.toISOString().slice(0, 16);
+
+  document.getElementById("startDateTime").defaultValue = lastHourISOstring;
+  document.getElementById("endDateTime").defaultValue = nowISOstring; 
+</script>
+{% endblock %}
