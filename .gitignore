@@ -1,7 +1,6 @@
 *.venv/
 node_modules/
 static/
-*/migrations
 .idea/
 
 .env
