@@ -6,8 +6,8 @@ from unifi.shared import get_all_sites
 SITES_CHOICES = [(site['name'], site['desc']) for site in get_all_sites()]
 PERIOD_CHOICES = [
     ('-1', 'interval does not specified'),
-    ('30', '30 seconds'),
-    ('120', '2 minutes'),
+    ('900', '15 minutes'),
+    ('1200', '20 minutes'),
 ]
 
 
