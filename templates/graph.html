@@ -99,7 +99,7 @@
   function filterData() {
     const startDateTime = document.getElementById('startDateTime').value;
     const endDateTime = document.getElementById('endDateTime').value;
-    const url = /graph/bar-json/?start=${startDateTime}&end=${endDateTime}
+    const url = `/graph/bar-json/?start=${startDateTime}&end=${endDateTime}`
 
 
     fetch(url)

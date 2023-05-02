@@ -4,10 +4,11 @@ import time
 
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.utils import timezone
 
 from .forms import LoggerForm
 from logger.models import Network
-from unifi.shared import knu_auth, deserialize_json
+from unifi.shared import knu_auth, deserialize_json, get_all_sites
 from unifi.settings import KNU_URL
 
 from asgiref.sync import sync_to_async
@@ -93,6 +94,6 @@ async def test_networks_bulk(networks):
         users = await get_telegram_users()
         for network in no_ip_networks:
             message += f"MAC address: {network.mac}\n"
-            message += f"Site: {network.name}\n"
+            message += f"Site: {network_name}\n"
         for user in users:
             await handle_err_notify(chat_id=user.chat_id, message=message, bot=bot.bot)
