@@ -67,11 +67,18 @@ def get_telegram_users():
 
 async def test_networks_bulk(networks):
     from tgbot.bot import handle_err_notify
+
+    sites = get_all_sites()
+    site_dict = {
+        site['_id']: site['desc'] for site in sites
+    }
+
     bulk = [
         Network(
             mac=network['mac'],
-            network_name=network.get('site_id', 'offline'),
+            network_name=site_dict.get(network.get('site_id'), 'offline'),
             ip=network['ip'],
+            logged_at=timezone.now(),
             raw_data=network,
         )
         for network in networks

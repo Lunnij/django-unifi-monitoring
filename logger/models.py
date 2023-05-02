@@ -9,7 +9,7 @@ class Network(models.Model):
     mac = models.GenericIPAddressField()
     network_name = models.CharField(max_length=50)
     ip = models.GenericIPAddressField(null=True)
-    logged_at = models.DateTimeField(auto_now_add=True)
+    logged_at = models.DateTimeField()
     # last_seen = models.BigIntegerField(default=0)
     # uptime = models.BigIntegerField()
     raw_data = models.JSONField()

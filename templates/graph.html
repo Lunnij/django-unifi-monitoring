@@ -2,36 +2,22 @@
 
 {% block meta %} 
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    font-family: sans-serif;
-  }
-  .chartMenu {
-    width: 100vw;
-    height: 40px;
-    background: #1A1A1A;
-    color: rgba(54, 162, 235, 1);
-  }
-  .chartMenu p {
-    padding: 10px;
-    font-size: 20px;
-  }
-  .chartCard {
-    width: 100vw;
-    height: calc(100vh - 350px);
-    
-    display: flex;
-    align-items: center;
-    
-  }
-  .chartBox {
-    width: 700px;
-    padding: 20px;
-    border-radius: 20px;
-    border: solid 3px rgba(54, 162, 235, 1);
-    background: white;
-  }
+  html, body {
+  height: 100%;
+  margin: 0;
+}
+.chartCard {
+  width: 100%;
+  height: calc(100% - 80px);
+  margin-top: 80px;
+}
+
+.chartBox {
+  width: 1200px;
+  max-width: 90%;
+  margin: 0 auto;
+}
+
 </style>
 {% endblock %}
 
@@ -63,8 +49,21 @@
         position: 'bottom'
       },
       scales: {
+        stacked: true,
+        x: {
+          title: {
+            display: true,
+            text: 'Logged at'
+          },
+        },
+        y: {
+            title: {
+              display: true,
+              text: 'Device count'
+          },
+        },
         xAxes: [{
-          stacked: false,
+          stacked: true,
           ticks: {
             autoSkip: true,
             maxTicksLimit: 20,
@@ -73,6 +72,7 @@
           },
           type: 'time',
           time: {
+            timeZoneName: 'Europe/Kyiv',
             unit: 'day',
             displayFormats: {
               day: 'MMM DD'
@@ -80,7 +80,7 @@
           }
         }],
         yAxes: [{
-          stacked: false,
+          stacked: true,
           ticks: {
             beginAtZero: true,
             precision: 0
@@ -99,7 +99,7 @@
   function filterData() {
     const startDateTime = document.getElementById('startDateTime').value;
     const endDateTime = document.getElementById('endDateTime').value;
-    const url = `/graph/bar-json/?start=${startDateTime}&end=${endDateTime}`
+    const url = /graph/bar-json/?start=${startDateTime}&end=${endDateTime}
 
 
     fetch(url)
@@ -112,14 +112,19 @@
     }).catch(error => console.error(error));
   }
 </script>
-<script> 
-  const lastHour = new Date(Date.now() - 3600000);
-  const lastHourISOstring = lastHour.toISOString().slice(0,16);
-  
-  const now = new Date();
-  const nowISOstring = now.toISOString().slice(0, 16);
+<script>
+    const dateParams = {
+        timeZone: 'Europe/Kyiv',
+    }
+    const lastHour = new Date(Date.now().toLocaleString() - 3600000);
+    const lastHourString = lastHour.toLocaleString('en-US', dateParams);
+    const lastHourISOstring = new Date(lastHourString).toISOString().slice(0, 16);
 
-  document.getElementById("startDateTime").defaultValue = lastHourISOstring;
-  document.getElementById("endDateTime").defaultValue = nowISOstring; 
+    const now = new Date();
+    const nowString = now.toLocaleString('en-US', dateParams);
+    const nowISOstring = new Date(nowString).toISOString().slice(0, 16);
+
+    document.getElementById("startDateTime").defaultValue = lastHourISOstring;
+    document.getElementById("endDateTime").defaultValue = nowISOstring;
 </script>
 {% endblock %}
