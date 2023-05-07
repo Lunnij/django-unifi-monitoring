@@ -94,6 +94,6 @@ async def test_networks_bulk(networks):
         users = await get_telegram_users()
         for network in no_ip_networks:
             message += f"MAC address: {network.mac}\n"
-            message += f"Site: {network_name}\n"
+            message += f"Site: {network.network_name}\n"
         for user in users:
             await handle_err_notify(chat_id=user.chat_id, message=message, bot=bot.bot)
