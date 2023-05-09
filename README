@@ -9,12 +9,16 @@ To run server in Linux terminal (python 3.9 or 3.10 is required):
 
 3. Pre-install all packages from requirements.txt: "pip3 install -r requirements.txt"
 
-4. In django-unifi-monitoring/.env insert required values in * *:
+4. Create django-unifi-monitoring/.env and insert required values in * *:
+DJANGO_SETTINGS_MODULE = unifi.settings
 APP_URL = '*server url*'
+APP_DEBUG = True
+APP_KEY = 'django-insecure-%bn3(i3bl#^(ajfzmimc)(*n3b7*+^i)yn$61=9uwk+4wfr#k1'
 DB_NAME = *database name*
 DB_USER = *database username*
 DB_USER_PASSWORD = *database user password*
 DB_HOST = *database host*
+DB_DB_PORT = 3306
 KNU_USERNAME = *user authentication login for https://unifi.noc.knu.ua:8443/*
 KNU_PASSWORD = *user authentication password for https://unifi.noc.knu.ua:8443/*
 TELEGRAM_TOKEN = *token for created telegram bot*
