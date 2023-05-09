@@ -4,6 +4,7 @@ from django.views.generic.edit import FormMixin
 from unifi.shared import get_all_sites
 
 SITES_CHOICES = [(site['name'], site['desc']) for site in get_all_sites()]
+SITES_CHOICES.insert(0, ('ALL', 'All Sites'))
 PERIOD_CHOICES = [
     ('-1', 'interval does not specified'),
     ('900', '15 minutes'),

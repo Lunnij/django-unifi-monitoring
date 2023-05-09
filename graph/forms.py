@@ -5,7 +5,7 @@ from django.db.models import Count
 from django.http import JsonResponse
 from django.views import View
 
-from logger.models import Network
+from logger.models import Device
 
 
 class BarChartJSONView(View):
@@ -18,11 +18,10 @@ class BarChartJSONView(View):
         end_date = datetime.fromisoformat(end_date_str)
 
         #
-        queryset = Network.objects \
+        queryset = Device.objects \
             .filter(logged_at__range=[start_date, end_date]) \
             .annotate(altered_logged_at=TruncMinute('logged_at')) \
-            .values('altered_logged_at', 'network_name') \
-            .exclude(network_name='offline')\
+            .values('altered_logged_at', 'site_id') \
             .annotate(mac_count=Count('mac', distinct=True)) \
             .distinct() \
             .order_by('altered_logged_at')
@@ -30,8 +29,8 @@ class BarChartJSONView(View):
         #
         dataset_label = []
         for obj in queryset:
-            if obj['network_name'] not in dataset_label:
-                dataset_label.append(obj['network_name'])
+            if obj['site_id'] not in dataset_label:
+                dataset_label.append(obj['site_id'])
 
         #
         labels = []
@@ -42,7 +41,7 @@ class BarChartJSONView(View):
         #
         datasets_dict = {label: [0] * len(labels) for label in dataset_label}
         for obj in queryset:
-            label = obj['network_name']
+            label = obj['site_id']
             data_index = labels.index(obj['altered_logged_at'].strftime('%d.%m %H:%M'))
             datasets_dict[label][data_index] = obj['mac_count']
 
