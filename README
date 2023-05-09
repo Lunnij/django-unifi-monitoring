@@ -1,0 +1,23 @@
+To run server in Linux terminal (python 3.9 or 3.10 is required):
+
+1. Pre-install all packages from requirements.txt: "pip3 install -r requirements.txt"
+
+2. Pre-install mysql (https://www.scaleway.com/en/docs/tutorials/setup-mysql/), "mysql-secure-installation" is requiered!
+
+3. In django-unifi-monitoring/.env insert required values in * *:
+APP_URL = '*server url*'
+DB_NAME = *database name*
+DB_USER = *database username*
+DB_USER_PASSWORD = *database user password*
+DB_HOST = *database host*
+KNU_USERNAME = *user authentication login for https://unifi.noc.knu.ua:8443/*
+KNU_PASSWORD = *user authentication password for https://unifi.noc.knu.ua:8443/*
+TELEGRAM_TOKEN = *token for created telegram bot*
+
+4. When everything is done, in Linux terminal:
+"cd django-unifi-motitoring/"
+"python3 -m venv venv"
+"source venv/bin/activate"
+".venv/bin/python3 manage.py makemigrations"
+".venv/bin/python3 manage.py migrate"
+"python3 manage.py runserver"
