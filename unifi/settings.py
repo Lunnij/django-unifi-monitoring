@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'tgbot',
     'bootstrap4',
     'chartjs',
+    'channels',
 ]
 
 MIDDLEWARE = [

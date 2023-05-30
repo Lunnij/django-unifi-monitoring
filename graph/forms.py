@@ -54,7 +54,9 @@ class BarChartJSONView(View):
             dataset = {
                 'label': label,
                 'data': data,
-                'borderWidth': 1
+                'borderWidth': 1,
+                'tension': 0.4,
+                'pointRadius': 0
             }
             datasets.append(dataset)
             total_data = [total_data[i] + data[i] for i in range(len(labels))]
@@ -62,7 +64,9 @@ class BarChartJSONView(View):
         total_dataset = {
             'label': 'All data',
             'data': total_data,
-            'borderWidth': 1
+            'borderWidth': 1,
+            'tension': 0.5,
+            'pointRadius': 0
         }
         datasets.append(total_dataset)
 

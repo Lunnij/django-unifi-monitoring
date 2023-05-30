@@ -1,19 +1,20 @@
 import urllib3
 import json
 import time
+from channels.db import database_sync_to_async
 
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.utils import timezone
 
 from .forms import LoggerForm
-from logger.models import Device
-from unifi.shared import knu_auth, deserialize_json, get_all_sites
+
+from unifi.shared import knu_auth, get_all_sites
 from unifi.settings import KNU_URL
 
 from asgiref.sync import sync_to_async
-from channels.db import database_sync_to_async
 
+from .models import Device
 
 urllib3.disable_warnings()  # insecure warning --> strongly advise to add TLS for unifi.
 stop_flag = False
@@ -28,6 +29,7 @@ def stop_log(request):
 async def index(request):
     global stop_flag
     stop_flag = False
+
     if request.method == 'POST':
         form = LoggerForm(request.POST)
         if form.is_valid():
@@ -55,12 +57,6 @@ async def index(request):
     return render(request, 'log.html', {'form': form})
 
 
-async def log_all(request):
-    all_sites = get_all_sites()
-    for site in all_sites:
-        await log(request, site['name'])
-
-
 async def log(request, site):
     session = knu_auth()
     data_url = KNU_URL + f"/v2/api/site/{site}/clients/active?includeTrafficUsage=true"
@@ -70,20 +66,15 @@ async def log(request, site):
     await networks_bulk(data)
     return HttpResponse(request)
 
-@sync_to_async
-def get_telegram_users():
-    from tgbot.models import TelegramUser
-    return list(TelegramUser.objects.all())
 
-
-async def send_message_tg(message):
-    from tgbot.bot import bot, handle_err_notify
-    users = await get_telegram_users()
-    for user in users:
-        await handle_err_notify(chat_id=user.chat_id, message=message, bot=bot.bot)
+async def log_all(request):
+    all_sites = get_all_sites()
+    for site in all_sites:
+        await log(request, site['name'])
 
 
 async def networks_bulk(networks):
+    from tgbot.bot import send_message_tg
     ip_not_found = []
 
     sites = get_all_sites()
@@ -91,27 +82,32 @@ async def networks_bulk(networks):
         site['_id']: site['desc'] for site in sites
     }
 
-    bulk = [
-        Device(
+    bulk = []
+    for network in networks:
+        if network.get('type') == 'WIRED' or network.get('is_wired' == True):
+            # Skip saving in the database for WIRED devices
+            continue
+        ip = network.get('ip', '')
+        if (ip == '' or None) and network['uptime'] > 120:
+            ip_not_found.append(network)
+
+        device = Device(
             mac=network.get('mac'),
             site_id=site_dict.get(network['site_id']),
-            ip=network.get('ip', ''),
+            ip=ip,
             logged_at=timezone.now(),
             uptime=network['uptime'],
         )
-        for network in networks
-    ]
-    await database_sync_to_async(Device.objects.bulk_create)(bulk)
-    print('bulk inserted', len(bulk))
+        bulk.append(device)
 
-    for device in networks:
-        if (device.get('ip', '') == '' or None) and device['uptime'] > 120:
-            ip_not_found.append(device)
+    print('Bulk inserted:', len(bulk))
+    if bulk:
+        await database_sync_to_async(Device.objects.bulk_create)(bulk)
 
     if ip_not_found:
-        message = "No IP address found for the following devices: \n\n"
+        message = "No IP address found for the following devices:\n\n"
         for device in ip_not_found:
-            site_id = site_dict.get(device['site_id'])
+            site_id = device.get('site_id', '-')
             mac = device.get('mac', '-')
             ip = device.get('ip', '-')
             uptime = device.get('uptime', '-')
