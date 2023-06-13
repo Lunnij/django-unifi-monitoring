@@ -55,7 +55,7 @@ class BarChartJSONView(View):
                 'label': label,
                 'data': data,
                 'borderWidth': 1,
-                'tension': 0.4,
+                'tension': 0.5,
                 'pointRadius': 0
             }
             datasets.append(dataset)

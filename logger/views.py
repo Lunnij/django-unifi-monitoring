@@ -93,7 +93,7 @@ async def networks_bulk(networks):
 
         device = Device(
             mac=network.get('mac'),
-            site_id=site_dict.get(network['site_id']),
+            site_id=site_dict.get(network.get('site_id'), 'offline'),
             ip=ip,
             logged_at=timezone.now(),
             uptime=network['uptime'],
@@ -107,7 +107,7 @@ async def networks_bulk(networks):
     if ip_not_found:
         message = "No IP address found for the following devices:\n\n"
         for device in ip_not_found:
-            site_id = device.get('site_id', '-')
+            site_id = site_dict.get(device.get('site_id', '-'))
             mac = device.get('mac', '-')
             ip = device.get('ip', '-')
             uptime = device.get('uptime', '-')
